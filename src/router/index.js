@@ -7,74 +7,93 @@ import Restaurants from '../views/Restaurants.vue'
 
 Vue.use(VueRouter)
 
-const routes = [
-  // 預設首頁
-  {
-    path: "/",
-    name: 'root',
-    redirect: '/restaurants'
-  },
-  {
-    path: '/signin',
-    name: 'sign-in',
-    component: SignIn,
-  },
-  {
-    path: '/signup',
-    name: 'sign-up',
-    // 延遲載入
-    component: () => import('../views/SignUp.vue'),
-  },
-  {
-    path: '/restaurants',
-    name: 'restaurants',
-    component: Restaurants
-  },
-  {
-    path: '/restaurants',
-    name: 'restaurants',
-    component: Restaurants
-  },
-  {
-    path: '/restaurants/feeds',
-    name: 'restaurants-feeds',
-    component: () => import('../views/RestaurantsFeeds.vue')
-  },
-  {
-    path: '/restaurants/top',
-    name: 'restaurants-tops',
-    component: () => import('../views/RestaurantsTop.vue')
-  },
-  {
-    path: '/restaurants/:id',
-    name: 'restaurant',
-    component: () => import('../views/Restaurant.vue')
-  },
-  {
-    path: '/restaurants/:id/dashboard',
-    name: 'restaurant-dashboard',
-    component: ()=>import('../views/RestaurantDashboard.vue')
-  },
-  {
-    path: '/users/top',
-    name: 'users-tops',
-    component: () => import('../views/UsersTop.vue')
-  },
-  {
-    path: '/users/:id',
-    name: 'user',
-    component: () => import('../views/User.vue')
-  },
-  {
-    path: '*',
-    name: 'not-found',
-    component: NotFound,
-  },
-]
-
 const router = new VueRouter({
   linkExactActiveClass: 'active',
-  routes
+  routes: [
+    {
+      // 預設首頁
+      path: "/",
+      name: 'root',
+      redirect: '/restaurants'
+    },
+    {
+      path: '/signin',
+      name: 'sign-in',
+      component: SignIn,
+    },
+    {
+      path: '/signup',
+      name: 'sign-up',
+      // 延遲載入
+      component: () => import('../views/SignUp.vue'),
+    },
+    {
+      path: '/restaurants',
+      name: 'restaurants',
+      component: Restaurants
+    },
+    {
+      path: '/restaurants/feeds',
+      name: 'restaurants-feeds',
+      component: () => import('../views/RestaurantsFeeds.vue')
+    },
+    {
+      path: '/restaurants/top',
+      name: 'restaurants-tops',
+      component: () => import('../views/RestaurantsTop.vue')
+    },
+    {
+      path: '/restaurants/:id',
+      name: 'restaurant',
+      component: () => import('../views/Restaurant.vue')
+    },
+    {
+      path: '/restaurants/:id/dashboard',
+      name: 'restaurant-dashboard',
+      component: () => import('../views/RestaurantDashboard.vue')
+    },
+    {
+      path: '/users/top',
+      name: 'users-tops',
+      component: () => import('../views/UsersTop.vue')
+    },
+    {
+      path: '/users/:id',
+      name: 'user',
+      component: () => import('../views/User.vue')
+    },
+    {
+      // 轉址admin，要完全比對
+      path: '/admin',
+      exact: true,
+      redirect: '/admin/restaurants'
+    },
+    {
+      path: '/admin/restaurants',
+      name: 'admin-restaurants',
+      component: () => import('../views/AdminRestaurants.vue')
+    },
+    {
+      path: '/admin/restaurants/new',
+      name: 'admin-restaurant-new',
+      component: ()=>import('../views/AdminRestaurantNew.vue')
+    },
+    {
+      path: '/admin/restaurants/:id',
+      name: 'admin-restaurant',
+      component: () => import('../views/AdminRestaurant.vue')
+    },
+    {
+      path: '/admin/restaurants/:id/edit',
+      name: 'admin-restaurant-edit',
+      component: () => import('../views/AdminRestaurantEdit.vue')
+    },
+    {
+      path: '*',
+      name: 'not-found',
+      component: NotFound,
+    },
+  ]
 })
 
 export default router
