@@ -30,14 +30,15 @@ export const nullAvatarFilter = {
     // 無頭像代替圖片
     nullAvatar(imgSrc) {
       const avatarImg = [
-        'https://cdn-icons-png.flaticon.com/512/817/817793.png',
-        'https://cdn-icons-png.flaticon.com/512/817/817759.png',
-        'https://cdn-icons-png.flaticon.com/512/817/817755.png',
-        'https://cdn-icons-png.flaticon.com/512/817/817758.png',
-        'https://cdn-icons-png.flaticon.com/512/817/817778.png',
-        'https://cdn-icons-png.flaticon.com/512/817/817782.png'
+        require('../assets/Dinosaur-avatars-situations/Surprise.png'),
+        require('../assets/Dinosaur-avatars-situations/Crying.png'),
+        require('../assets/Dinosaur-avatars-situations/Dizzy.png'),
+        require('../assets/Dinosaur-avatars-situations/Sick.png'),
+        require('../assets/Dinosaur-avatars-situations/Embarrassed.png'),
+        require('../assets/Dinosaur-avatars-situations/Fear.png'),
+
       ]
-      return imgSrc|| avatarImg[Math.floor(Math.random() * avatarImg.length)]
+      return imgSrc || avatarImg[Math.floor(Math.random() * avatarImg.length)]
     }
   }
 }
@@ -46,15 +47,14 @@ export const nullRestaurantFilter = {
   filters: {
     nullRestaurant(imgSrc) {
       const restaurantImg = [
-        'https://cdn-icons-png.flaticon.com/512/4403/4403032.png',
-        'https://cdn-icons-png.flaticon.com/512/4403/4403036.png',
-        'https://cdn-icons-png.flaticon.com/512/4403/4403038.png',
-        'https://cdn-icons-png.flaticon.com/512/4403/4403042.png',
-        'https://cdn-icons-png.flaticon.com/512/4403/4403043.png',
-        'https://cdn-icons-png.flaticon.com/512/4403/4403051.png',
-        'https://cdn-icons-png.flaticon.com/512/4403/4403056.png'
+        require('../assets/Food-stickers/Burger.png'),
+        require('../assets/Food-stickers/Ramen.png'),
+        require('../assets/Food-stickers/Nachos.png'),
+        require('../assets/Food-stickers/Sandwich.png'),
+        require('../assets/Food-stickers/Pizza.png'),
+        require('../assets/Food-stickers/Sushi.png'),
       ]
-      return imgSrc ||restaurantImg[Math.floor(Math.random() * restaurantImg.length)]
+      return imgSrc || restaurantImg[Math.floor(Math.random() * restaurantImg.length)]
     }
   }
 }
