@@ -135,7 +135,7 @@ const dummyData = {
 }
 
 export default {
-    props: {
+  props: {
     initialRestaurant: {
       type: Object,
       // 沒有傳入資料時，採用預設值
@@ -146,7 +146,7 @@ export default {
         address: '',
         description: '',
         image: '',
-        openingHours: '',
+        openingHours: ''
       })
     }
   },
@@ -166,7 +166,7 @@ export default {
   },
   created() {
     this.fetchCategories()
-     this.restaurant = {
+    this.restaurant = {
       ...this.restaurant,
       ...this.initialRestaurant
     }
@@ -191,7 +191,6 @@ export default {
       const form = event.target //整個<form></form>結構
       const formData = new FormData(form)
       this.$emit('after-submit', formData)
-
     }
   }
 }
