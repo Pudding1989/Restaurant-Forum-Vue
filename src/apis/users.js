@@ -34,4 +34,18 @@ export default {
       headers: { Authorization: `Bearer ${getToken()}` }
     })
   },
+
+  addFollowing({ userId }) {
+    // POST 方法第二個參數是資料，入沒有資料要填 null
+    return apiHelper.post(`/following/${userId}`, null, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+  },
+
+  deleteFollowing({ userId }) {
+    // POST 方法第二個參數是資料，入沒有資料要填 null
+    return apiHelper.delete(`/following/${userId}`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+  }
 }
