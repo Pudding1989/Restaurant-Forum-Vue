@@ -12,50 +12,8 @@
 <script>
 import NavTabs from '../components/NavTabs.vue'
 import UserTopCard from '../components/UserTopCard.vue'
-
-const dummyData = {
-  users: [
-    {
-      id: 1,
-      name: 'root',
-      email: 'root@example.com',
-      password: '$2a$10$8Fhj4kFkv54mtmkPQFu/PeJfNwLqalcUWMqCofo5.jV2xQFBBXvx6',
-      isAdmin: true,
-      image: null,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z',
-      Followers: [],
-      FollowerCount: 0,
-      isFollowed: false
-    },
-    {
-      id: 2,
-      name: 'user1',
-      email: 'user1@example.com',
-      password: '$2a$10$UFVyItuSQsryCf3cGEkbC.86d2x2eHeV2JEhMUkkVSpD3rjwx7wWS',
-      isAdmin: false,
-      image: null,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z',
-      Followers: [],
-      FollowerCount: 0,
-      isFollowed: false
-    },
-    {
-      id: 3,
-      name: 'user2',
-      email: 'user2@example.com',
-      password: '$2a$10$kivRe9l0JPSxc9bRNH0fg.7zaPgulbhRF0KDkoDK92OGiYz58AXoi',
-      isAdmin: false,
-      image: null,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z',
-      Followers: [],
-      FollowerCount: 0,
-      isFollowed: false
-    }
-  ]
-}
+import usersAPI from '../apis/users'
+import { Toast } from '../utils/helpers'
 
 export default {
   components: {
@@ -68,8 +26,24 @@ export default {
     }
   },
   methods: {
-    fetchUsers() {
-      this.users = dummyData.users
+    async fetchUsers() {
+      try {
+        const { data } = await usersAPI.getTopUsers()
+        console.log(data)
+        this.users = data.users.map((user) => ({
+          id: user.id,
+          name: user.name,
+          image: user.image,
+          followerCount: user.FollowerCount,
+          isFollowed: user.isFollowed
+        }))
+      } catch (error) {
+        console.log(error)
+        Toast.fire({
+          icon: 'error',
+          title: '無法取得美食達人，<br>請稍後再試'
+        })
+      }
     }
   },
   created() {
