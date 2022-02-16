@@ -14,7 +14,7 @@ const router = new VueRouter({
       // 預設首頁
       path: "/",
       name: 'root',
-      redirect: '/restaurants'
+      redirect: '/signin'
     },
     {
       path: '/signin',
