@@ -5,13 +5,19 @@ export default {
   getRestaurants({ page, categoryId }) {
     // 產生 queryString
     const searchParams = new URLSearchParams({ page, categoryId })
-    return apiHelper.get(`restaurants?${searchParams}`, {
+    return apiHelper.get(`/restaurants?${searchParams}`, {
       headers: { Authorization: `Bearer ${getToken()}` }
     })
   },
 
   getFeeds() {
-    return apiHelper.get('restaurants/feeds', {
+    return apiHelper.get('/restaurants/feeds', {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+  },
+
+  getTopRestaurants() {
+    return apiHelper.get('/restaurants/top', {
       headers: { Authorization: `Bearer ${getToken()}` }
     })
   }

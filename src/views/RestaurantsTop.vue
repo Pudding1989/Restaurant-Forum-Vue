@@ -60,182 +60,8 @@
 <script>
 import NavTabs from '../components/NavTabs.vue'
 import { nullRestaurantFilter } from '../utils/mixins'
-
-// 模擬後端請求
-const dummyData = {
-  restaurants: [
-    {
-      id: 50,
-      name: 'Lula King',
-      tel: '077.048.3299',
-      address: '11653 Schulist Parkways',
-      opening_hours: '08:00',
-      description: 'Eveniet qui provident sit dignissimos ipsam est re',
-      image:
-        'https://loremflickr.com/320/240/restaurant,food/?random=90.61258218764578',
-      viewCounts: 2,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-02-01T09:47:47.000Z',
-      CategoryId: 4,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0
-    },
-    {
-      id: 49,
-      name: 'Mollie Hegmann',
-      tel: '265-716-1975 x0377',
-      address: '036 Harvey Gateway',
-      opening_hours: '08:00',
-      description: 'Quo fugiat eum quia nemo doloribus. Est autem iure',
-      image:
-        'https://loremflickr.com/320/240/restaurant,food/?random=0.6450284123356687',
-      viewCounts: 0,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z',
-      CategoryId: 4,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0
-    },
-    {
-      id: 48,
-      name: 'Petra Ziemann IV',
-      tel: '1-296-985-7292 x364',
-      address: '1646 Forrest Station',
-      opening_hours: '08:00',
-      description: 'Neque qui minus voluptatibus error et quisquam.',
-      image:
-        'https://loremflickr.com/320/240/restaurant,food/?random=43.541833731605514',
-      viewCounts: 2,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-02-01T09:51:08.000Z',
-      CategoryId: 3,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0
-    },
-    {
-      id: 47,
-      name: 'Max Pagac',
-      tel: '(383) 454-1640 x52190',
-      address: '414 Wiegand Lodge',
-      opening_hours: '08:00',
-      description: 'Dicta sed distinctio incidunt animi. Nihil volupta',
-      image:
-        'https://loremflickr.com/320/240/restaurant,food/?random=25.555857646380797',
-      viewCounts: 0,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z',
-      CategoryId: 3,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0
-    },
-    {
-      id: 46,
-      name: 'Alford Homenick',
-      tel: '(636) 500-3259',
-      address: '365 Jefferey Lakes',
-      opening_hours: '08:00',
-      description: 'Harum quisquam necessitatibus qui. Culpa optio min',
-      image:
-        'https://loremflickr.com/320/240/restaurant,food/?random=46.43168723513189',
-      viewCounts: 0,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z',
-      CategoryId: 3,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0
-    },
-    {
-      id: 45,
-      name: 'Glenna Goodwin',
-      tel: '(208) 074-2694 x58821',
-      address: '8198 Bechtelar Corner',
-      opening_hours: '08:00',
-      description: 'Qui nobis consequatur quisquam ducimus error aut. ',
-      image:
-        'https://loremflickr.com/320/240/restaurant,food/?random=80.01595312267997',
-      viewCounts: 0,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z',
-      CategoryId: 3,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0
-    },
-    {
-      id: 44,
-      name: 'Evan Brekke',
-      tel: '1-486-595-8088 x9719',
-      address: '683 Valentina Mill',
-      opening_hours: '08:00',
-      description: 'Est eos voluptatem et molestias. Voluptatum pariat',
-      image:
-        'https://loremflickr.com/320/240/restaurant,food/?random=62.5665616274109',
-      viewCounts: 1,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-02-01T09:47:51.000Z',
-      CategoryId: 4,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0
-    },
-    {
-      id: 43,
-      name: 'Maximus Schiller',
-      tel: '(910) 127-2437 x84644',
-      address: '4545 Gaylord Hill',
-      opening_hours: '08:00',
-      description: 'ut quam qui',
-      image:
-        'https://loremflickr.com/320/240/restaurant,food/?random=23.619538335779943',
-      viewCounts: 0,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z',
-      CategoryId: 1,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0
-    },
-    {
-      id: 42,
-      name: 'Morgan Funk',
-      tel: '1-297-184-6977',
-      address: '14551 Wunsch Shores',
-      opening_hours: '08:00',
-      description: 'Sint quo vel. Veritatis accusamus hic hic laudanti',
-      image:
-        'https://loremflickr.com/320/240/restaurant,food/?random=83.68662227006105',
-      viewCounts: 0,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z',
-      CategoryId: 3,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0
-    },
-    {
-      id: 41,
-      name: 'Jalon Macejkovic II',
-      tel: '(421) 066-4480 x993',
-      address: '45326 Alf Circles',
-      opening_hours: '08:00',
-      description: 'consequatur voluptate aut',
-      image:
-        'https://loremflickr.com/320/240/restaurant,food/?random=48.49587313641577',
-      viewCounts: 0,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z',
-      CategoryId: 1,
-      FavoritedUsers: [],
-      isFavorited: false,
-      FavoriteCount: 0
-    }
-  ]
-}
+import restaurantsAPI from '../apis/restaurants'
+import { Toast } from '../utils/helpers'
 
 export default {
   components: {
@@ -248,8 +74,17 @@ export default {
     }
   },
   methods: {
-    fetchRestaurants() {
-      this.restaurants = dummyData.restaurants
+    async fetchRestaurants() {
+      try {
+        const {data} = await restaurantsAPI.getTopRestaurants()
+        this.restaurants = data.restaurants
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法取得人氣餐廳，<br>請稍後再試'
+        })
+      }
+
     },
     addFavorite(restaurant) {
       restaurant.isFavorited = true
