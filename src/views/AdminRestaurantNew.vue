@@ -1,7 +1,10 @@
 <template>
   <div class="container py-5">
     <!-- 餐廳表單 AdminRestaurantForm -->
-    <AdminRestaurantForm @after-submit="handleAfterSubmit" />
+    <AdminRestaurantForm
+      @after-submit="handleAfterSubmit"
+      :is-processing="isProcessing"
+    />
   </div>
 </template>
 
@@ -11,6 +14,11 @@ import AdminRestaurantForm from '../components/AdminRestaurantForm.vue'
 export default {
   components: {
     AdminRestaurantForm
+  },
+  data() {
+    return {
+      isProcessing: false
+    }
   },
   methods: {
     handleAfterSubmit(formData) {
