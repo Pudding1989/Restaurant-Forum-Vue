@@ -78,26 +78,99 @@
 </template>
 
 <script>
+import authorizationAPI from '../apis/authorization'
+import { Toast } from '../utils/helpers'
+
 export default {
   data() {
     return {
       name: '',
       email: '',
       password: '',
-      passwordCheck: '',
+      passwordCheck: ''
+    }
+  },
+  watch: {
+    passwordCheck() {
+      if (
+        this.password &&
+        this.passwordCheck &&
+        this.password === this.passwordCheck
+      ) {
+        Toast.fire({
+          icon: 'success',
+          title: '再次確認密碼成功'
+        })
+      }
     }
   },
   methods: {
-    handleSubmit() {
-      const data = JSON.stringify({
-        name: this.name,
-        email: this.email,
-        password: this.password,
-        passwordCheck: this.passwordCheck,
-      })
+    async handleSubmit() {
+      // 前端資料驗證
+      try {
+        if (!this.name) {
+          Toast.fire({
+            icon: 'warning',
+            title: '請填入姓名'
+          })
+          return
+        }
 
-      console.log('submit Data', data)
-    },
-  },
+        if (!this.email) {
+          Toast.fire({
+            icon: 'warning',
+            title: '請填入Email'
+          })
+          return
+        } else if (!/[^@\s]+@[^@\s]+\.[^@\s]+/.test(this.email)) {
+          Toast.fire({
+            icon: 'warning',
+            title: 'Email格式錯誤'
+          })
+          return
+        }
+
+        if (!this.password) {
+          Toast.fire({
+            icon: 'warning',
+            title: '請填入密碼'
+          })
+          return
+        }
+
+        if (this.password !== this.passwordCheck) {
+          Toast.fire({
+            icon: 'warning',
+            title: '兩次輸入密碼不同'
+          })
+          return
+        }
+
+        // API
+        const { data } = await authorizationAPI.signUP({
+          name: this.name,
+          email: this.email,
+          password: this.password,
+          passwordCheck: this.passwordCheck
+        })
+
+        if (data.status === 'error') {
+          throw new Error(data.message)
+        }
+
+        Toast.fire({
+          icon: 'success',
+          title: '成功建立帳號'
+        })
+        this.$router.push({name: 'root'})
+      } catch (error) {
+        console.log(error)
+        Toast.fire({
+          icon: 'warning',
+          title: `無法註冊，<br>${error.message}`
+        })
+      }
+    }
+  }
 }
 </script>
