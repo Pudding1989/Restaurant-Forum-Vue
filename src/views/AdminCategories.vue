@@ -32,7 +32,7 @@
           <th scope="col" width="210">Action</th>
         </tr>
       </thead>
-      <tbody>
+      <transition-group tag="tbody" name="tbody">
         <tr v-for="category in categories" :key="category.id">
           <th scope="row">
             {{ category.id }}
@@ -83,7 +83,7 @@
             </button>
           </td>
         </tr>
-      </tbody>
+      </transition-group>
     </table>
   </div>
 </template>
@@ -117,88 +117,166 @@
   cursor: pointer;
   font-size: 12px;
 }
+
+.tbody-enter,
+.tbody-leave-to {
+  transform-origin: bottom;
+  transform: scaleY(0);
+}
+
+.tbody-enter-to,
+.tbody-leave {
+  transform-origin: top;
+  transform: scaleY(1);
+}
+
+.tbody-enter-active {
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.285);
+}
+
+.tbody-leave-active {
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.1, 1);
+  /* visibility: hidden;
+  position: absolute; */
+}
 </style>
 
 <script>
 import AdminNav from '@/components/AdminNav'
-import { v4 as uuidv4 } from 'uuid'
-
-//  2. 定義暫時使用的資料
-const dummyData = {
-  categories: [
-    {
-      id: 1,
-      name: '中式料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    },
-    {
-      id: 2,
-      name: '日本料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    },
-    {
-      id: 3,
-      name: '義大利料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    },
-    {
-      id: 4,
-      name: '墨西哥料理',
-      createdAt: '2019-06-22T09:00:43.000Z',
-      updatedAt: '2019-06-22T09:00:43.000Z'
-    }
-  ]
-}
+import adminAPI from '../apis/admin'
+import { Toast } from '../utils/helpers'
 
 export default {
   components: {
     AdminNav
   },
-  // 3. 定義 Vue 中使用的 data 資料
+  //  定義 Vue 中使用的 data 資料
   data() {
     return {
       newCategoryName: '',
       categories: []
     }
   },
-  // 5. 調用 `fetchCategories` 方法
+  // 調用 `fetchCategories` 方法
   created() {
     this.fetchCategories()
   },
   methods: {
-    // 4. 定義 `fetchCategories` 方法，把 `dummyData` 帶入 Vue 物件
-    fetchCategories() {
-      this.categories = dummyData.categories.map((category) => ({
-        ...category,
-        // 增加屬性，來切換編輯模式
-        isEditing: false,
-        // 備份編輯前資料用
-        nameCached: ''
-      }))
+    // 4. 定義 fetchCategories 方法，把 response data 帶入 Vue 物件
+    async fetchCategories() {
+      try {
+        const { data, statusText } = await adminAPI.categories.get()
+        if (statusText !== 'OK') {
+          console.log(statusText)
+          throw new Error('無法取得餐廳類別')
+        }
+        this.categories = data.categories.map((category) => ({
+          ...category,
+          // 增加屬性，來切換編輯模式
+          isEditing: false,
+          // 備份編輯前資料用
+          nameCached: ''
+        }))
+      } catch (error) {
+        Toast.fire({
+          icon: 'warning',
+          title: '無法取得餐廳類別<br>，請稍後再試'
+        })
+      }
     },
-    createCategory() {
-      this.categories.push({
-        id: uuidv4(), // 由後端產生，暫時用uuid模擬
-        name: this.newCategoryName
-      })
-      // 清空欄位
-      this.newCategoryName = ''
+    async createCategory() {
+      try {
+        const { data } = await adminAPI.categories.create({
+          name: this.newCategoryName
+        })
+        // 檢查後端操作成功與否
+        if (data.status !== 'success') {
+          throw new Error(data.message)
+        }
+        // 後端傳回後，成功後操作 vue
+        this.categories.push({
+          // 由後端產生
+          id: data.categoryId,
+          name: this.newCategoryName
+        })
+
+        Toast.fire({
+          icon: 'success',
+          title: '成功新增餐廳類別'
+        })
+        // 清空欄位
+        this.newCategoryName = ''
+      } catch (error) {
+        console.log(error)
+        Toast.fire({
+          icon: 'warning',
+          title: '無法新增餐廳類別<br>，請稍後再試'
+        })
+      }
     },
-    deleteCategory(categoryId) {
-      // TODO: 透過 API 告知伺服器要刪除的餐廳類別
-      // 從 data屬性裡移除
-      this.categories = this.categories.filter(
-        (category) => category.id !== categoryId
-      )
+    async deleteCategory(categoryId) {
+      try {
+        // 透過 API 告知伺服器要刪除的餐廳類別
+        const { data } = await adminAPI.categories.delete({ categoryId })
+        if (data.status !== 'success') {
+          throw new Error(data.message)
+        }
+
+        for (const category of this.categories) {
+          if (category.id === categoryId) {
+            Toast.fire({
+              icon: 'success',
+              title: `成功刪除&thinsp;『 ${category.name} 』餐廳類別`
+            })
+          }
+        }
+        // 收到 API 回應，從 data屬性裡移除
+        this.categories = this.categories.filter(
+          (category) => category.id !== categoryId
+        )
+      } catch (error) {
+        console.log(error)
+        Toast.fire({
+          icon: 'warning',
+          title: '無法刪除餐廳類別<br>，請稍後再試'
+        })
+      }
     },
-    updateCategory({ categoryId, name }) {
-      // TODO: 透過 API 去向伺服器更新餐廳類別名稱
-      console.log('儲存的內容: ' + name)
-      // 切換對應按鈕狀態
-      this.toggleIsEditing(categoryId)
+    async updateCategory({ categoryId, name }) {
+      try {
+        // 排除沒有修改的資料向後端發出請求
+        for (const category of this.categories) {
+          if (
+            category.id === categoryId &&
+            category.name === category.nameCached
+          ) {
+            Toast.fire({
+              icon: 'info',
+              title: '輸入的類別名稱<br>與原本內容相同'
+            })
+            return
+          }
+        }
+
+        // 透過 API 去向伺服器更新餐廳類別名稱
+        const { data } = await adminAPI.categories.update({ categoryId, name })
+        // 檢查 API 結果
+        if (data.status !== 'success') {
+          throw new Error(data.message)
+        }
+        // 切換對應按鈕狀態
+        this.toggleIsEditing(categoryId)
+        Toast.fire({
+          icon: 'success',
+          title: '已成功修改餐廳類別'
+        })
+      } catch (error) {
+        console.log(error)
+        Toast.fire({
+          icon: 'warning',
+          title: '無法修改餐廳類別<br>，請稍後再試'
+        })
+      }
     },
     toggleIsEditing(categoryId) {
       this.categories = this.categories.map((category) => {
