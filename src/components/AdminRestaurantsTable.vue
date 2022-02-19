@@ -9,7 +9,7 @@
       </tr>
     </thead>
 
-    <transition-group tag="tbody" name="fade">
+    <transition-group tag="tbody" name="tbody">
       <tr v-for="restaurant in restaurants" :key="restaurant.id">
         <th scope="row">
           {{ restaurant.id }}
@@ -106,17 +106,28 @@ export default {
 </script>
 
 <style scoped>
-.fade-enter,
-.fade-leave-to {
-  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.1, 1);
+.tbody-enter,
+.tbody-leave-to {
   transform-origin: bottom;
   transform: scaleY(0);
 }
 
-.fade-enter-to,
-.fade-leave {
-  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.285);
+.tbody-enter-to,
+.tbody-leave {
   transform-origin: top;
   transform: scaleY(1);
+}
+
+.tbody-enter-active {
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.285);
+}
+
+.tbody-leave-active {
+  visibility:  hidden;
+  position: absolute;
+}
+
+.tbody-move {
+  transition: all 0.35s cubic-bezier(0.8, -0.6, 0.1, 1.4);
 }
 </style>

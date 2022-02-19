@@ -29,7 +29,6 @@ export default {
         const { data } = await adminAPI.restaurants.create({
           formData
         })
-        console.log(data)
 
         if (data.status !== 'success') {
           throw new Error(data.message)
