@@ -17,7 +17,11 @@
     <div id="navbarSupportedContent" class="navbar-collapse collapse">
       <div class="ml-auto d-flex align-items-center">
         <!-- is user is admin -->
-        <router-link :to="{name:'admin-restaurants'}" v-if="currentUser.isAdmin" class="text-white mr-3">
+        <router-link
+          :to="{ name: 'admin-restaurants' }"
+          v-if="currentUser.isAdmin"
+          class="text-white mr-3"
+        >
           管理員後台
         </router-link>
 
@@ -42,46 +46,12 @@
 </template>
 
 <script>
-// seed data，模擬後端資料
-const dummyUser = {
-  currentUser: {
-    id: 1,
-    name: '管理者',
-    email: 'root@example.com',
-    image: 'https://i.pravatar.cc/300',
-    isAdmin: true
-  },
-  isAuthenticated: true
-}
+import { mapState } from 'vuex'
 
 export default {
-  // 預設值
-  data() {
-    return {
-      currentUser: {
-        id: -1,
-        name: '',
-        email: '',
-        image: '',
-        isAdmin: false
-      },
-      isAuthenticated: false
-    }
-  },
-
-  methods: {
-    fetchUser() {
-      this.currentUser = {
-        //  顯讀取預設值，再複寫
-        ...this.currentUser,
-        ...dummyUser.currentUser
-      }
-      this.isAuthenticated = dummyUser.isAuthenticated
-    }
-  },
-  // 生命週期
-  created() {
-    this.fetchUser()
+  // 用 mapState，
+  computed: {
+    ...mapState(['currentUser', 'isAuthenticated'])
   }
 }
 </script>

@@ -100,10 +100,13 @@ export default {
 
         // 將 token 存放在 localStorage
         localStorage.setItem('token', data.token)
+
+        // 將資料傳到 Vuex 中
+        this.$store.commit('setCurrentUser', data.user)
+
         // 成功登入後，轉址到餐廳
         // 不用還原 isProcessing 的狀態
         this.$router.push('/restaurants')
-
       } catch (error) {
         this.password = ''
 
