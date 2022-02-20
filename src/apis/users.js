@@ -3,6 +3,18 @@ import { apiHelper } from '../utils/helpers'
 const getToken = () => localStorage.getItem('token')
 
 export default {
+  getCUrrentUser() {
+    return apiHelper.get('/get_current_user', {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+  },
+
+  get({ userId }) {
+    return apiHelper(`/user/${userId}`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+  },
+
   addFavorite({ restaurantId }) {
     // 官方範例是axios.post(url[, data[, config]])
     // 剛好這一個 post不用夾帶資料
