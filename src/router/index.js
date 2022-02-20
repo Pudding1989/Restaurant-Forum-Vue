@@ -4,6 +4,8 @@ import VueRouter from 'vue-router'
 import NotFound from '../views/NotFound.vue'
 import SignIn from '../views/SignIn.vue'
 import Restaurants from '../views/Restaurants.vue'
+//  要載入 dispatch 方法
+import store from "../store";
 
 Vue.use(VueRouter)
 
@@ -12,20 +14,20 @@ const router = new VueRouter({
   routes: [
     {
       // 預設首頁
-      path: "/",
+      path: '/',
       name: 'root',
       redirect: '/signin'
     },
     {
       path: '/signin',
       name: 'sign-in',
-      component: SignIn,
+      component: SignIn
     },
     {
       path: '/signup',
       name: 'sign-up',
       // 延遲載入
-      component: () => import('../views/SignUp.vue'),
+      component: () => import('../views/SignUp.vue')
     },
     {
       path: '/restaurants',
@@ -106,9 +108,15 @@ const router = new VueRouter({
     {
       path: '*',
       name: 'not-found',
-      component: NotFound,
-    },
+      component: NotFound
+    }
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  // 使用 dispatch 呼叫 Vuex 內的 actions
+  store.dispatch('fetchCurrentUser')
+  next()
 })
 
 export default router
