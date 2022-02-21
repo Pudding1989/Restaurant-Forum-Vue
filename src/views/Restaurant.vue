@@ -22,103 +22,9 @@
 import RestaurantDetail from '../components/RestaurantDetail.vue'
 import RestaurantComments from '../components/RestaurantComments.vue'
 import CreateComment from '../components/CreateComment.vue'
-
-const dummyData = {
-  restaurant: {
-    id: 1,
-    name: 'Jonathon Connelly',
-    tel: '587-975-9942 x397',
-    address: '5561 Maybell Vista',
-    opening_hours: '08:00',
-    description: 'amet non ut',
-    image:
-      'https://loremflickr.com/320/240/restaurant,food/?random=36.448866481618424',
-    viewCounts: 1,
-    createdAt: '2022-01-29T20:17:31.000Z',
-    updatedAt: '2022-01-31T16:21:41.781Z',
-    CategoryId: 4,
-    Category: {
-      id: 4,
-      name: '墨西哥料理',
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z'
-    },
-    FavoritedUsers: [],
-    LikedUsers: [],
-    Comments: [
-      {
-        id: 51,
-        text: 'Molestias excepturi fugit ducimus sit.',
-        UserId: 2,
-        RestaurantId: 1,
-        createdAt: '2022-01-29T20:17:31.000Z',
-        updatedAt: '2022-01-29T20:17:31.000Z',
-        User: {
-          id: 2,
-          name: 'user1',
-          email: 'user1@example.com',
-          password:
-            '$2a$10$UFVyItuSQsryCf3cGEkbC.86d2x2eHeV2JEhMUkkVSpD3rjwx7wWS',
-          isAdmin: false,
-          image: null,
-          createdAt: '2022-01-29T20:17:31.000Z',
-          updatedAt: '2022-01-29T20:17:31.000Z'
-        }
-      },
-      {
-        id: 101,
-        text: 'Temporibus quis id.',
-        UserId: 2,
-        RestaurantId: 1,
-        createdAt: '2022-01-29T20:17:31.000Z',
-        updatedAt: '2022-01-29T20:17:31.000Z',
-        User: {
-          id: 2,
-          name: 'user1',
-          email: 'user1@example.com',
-          password:
-            '$2a$10$UFVyItuSQsryCf3cGEkbC.86d2x2eHeV2JEhMUkkVSpD3rjwx7wWS',
-          isAdmin: false,
-          image: null,
-          createdAt: '2022-01-29T20:17:31.000Z',
-          updatedAt: '2022-01-29T20:17:31.000Z'
-        }
-      },
-      {
-        id: 1,
-        text: 'Minima harum enim ducimus sed ut doloremque.',
-        UserId: 3,
-        RestaurantId: 1,
-        createdAt: '2022-01-29T20:17:31.000Z',
-        updatedAt: '2022-01-29T20:17:31.000Z',
-        User: {
-          id: 3,
-          name: 'user2',
-          email: 'user2@example.com',
-          password:
-            '$2a$10$kivRe9l0JPSxc9bRNH0fg.7zaPgulbhRF0KDkoDK92OGiYz58AXoi',
-          isAdmin: false,
-          image: null,
-          createdAt: '2022-01-29T20:17:31.000Z',
-          updatedAt: '2022-01-29T20:17:31.000Z'
-        }
-      }
-    ]
-  },
-  isFavorited: false,
-  isLiked: false
-}
-
-// 模擬向後端請求目前使用者資料
-const dummyUser = {
-  currentUser: {
-    id: 1,
-    name: 'root',
-    email: 'root@example.com',
-    image: null,
-    isAdmin: true
-  }
-}
+import restaurantsAPI from '../apis/restaurants'
+import { Toast } from '../utils/helpers'
+import { mapState } from 'vuex'
 
 export default {
   components: {
@@ -142,42 +48,57 @@ export default {
         isFavorited: false,
         isLiked: false
       },
-      currentUser: dummyUser.currentUser,
       restaurantComments: []
     }
   },
-  methods: {
-    fetchRestaurant(restaurantId) {
-      console.log('擷取的餐廳 ID', restaurantId)
-      // 依照資料結構分層取出
-      const { restaurant, isFavorited, isLiked } = dummyData
-      // 取出放在 restaurant 要用的值
-      const {
-        id,
-        name,
-        tel,
-        address,
-        opening_hours,
-        Category,
-        image,
-        description,
-        Comments
-      } = restaurant
 
-      // 賦值進vue
-      this.restaurant = {
-        id,
-        name,
-        categoryName: Category.name,
-        image,
-        openingHours: opening_hours,
-        tel,
-        address,
-        description,
-        isFavorited,
-        isLiked
+// 進入路由前從API請求目前使用者，元件用 computed 自動載入
+computed:{
+  // 從 Vuex 取得 currentUser 的資料
+  ...mapState['currentUser']
+},
+
+  methods: {
+    async fetchRestaurant(restaurantId) {
+      try {
+        const { data } = await restaurantsAPI.getRestaurant({ restaurantId })
+
+        // 依照資料結構分層取出
+        const { restaurant, isFavorited, isLiked } = data
+        // 取出放在 restaurant 要用的值
+        const {
+          id,
+          name,
+          tel,
+          address,
+          opening_hours,
+          Category,
+          image,
+          description,
+          Comments
+        } = restaurant
+
+        // 賦值進vue
+        this.restaurant = {
+          id,
+          name,
+          categoryName: Category ? Category.name : '未分類',
+          image,
+          openingHours: opening_hours,
+          tel,
+          address,
+          description,
+          isFavorited,
+          isLiked
+        }
+        this.restaurantComments = Comments
+      } catch (error) {
+        console.log(error)
+        Toast.fire({
+          icon: 'error',
+          title: '無法取得餐廳資料，請稍後再試'
+        })
       }
-      this.restaurantComments = Comments
     },
 
     afterDeleteComment(commentId) {
@@ -205,6 +126,11 @@ export default {
     // 動態路由的 params 是 :id
     const { id: restaurantId } = this.$route.params
     this.fetchRestaurant(restaurantId)
+  },
+  beforeRouteUpdate(to, from, next) {
+    const {id:restaurantId} = to.params
+    this.fetchRestaurant(restaurantId)
+    next()
   }
 }
 </script>
