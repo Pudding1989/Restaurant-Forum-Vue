@@ -13,6 +13,7 @@
     <!-- 新增評論 CreateComment -->
     <CreateComment
       :restaurant-id="restaurant.id"
+      :submitBtn="submitBtn"
       @after-create-comment="afterCreateComment"
     />
   </div>
@@ -23,6 +24,7 @@ import RestaurantDetail from '../components/RestaurantDetail.vue'
 import RestaurantComments from '../components/RestaurantComments.vue'
 import CreateComment from '../components/CreateComment.vue'
 import restaurantsAPI from '../apis/restaurants'
+import commentsAPI from '../apis/comments'
 import { Toast } from '../utils/helpers'
 import { mapState } from 'vuex'
 
@@ -48,15 +50,17 @@ export default {
         isFavorited: false,
         isLiked: false
       },
-      restaurantComments: []
+      restaurantComments: [],
+      // 發送 API時 disabled 按鈕
+      submitBtn: false
     }
   },
 
-// 進入路由前從API請求目前使用者，元件用 computed 自動載入
-computed:{
-  // 從 Vuex 取得 currentUser 的資料
-  ...mapState['currentUser']
-},
+  // 進入路由前從API請求目前使用者，元件用 computed 自動載入
+  computed: {
+    // 從 Vuex 取得 currentUser 的資料
+    ...mapState(['currentUser'])
+  },
 
   methods: {
     async fetchRestaurant(restaurantId) {
@@ -91,7 +95,9 @@ computed:{
           isFavorited,
           isLiked
         }
-        this.restaurantComments = Comments
+        this.restaurantComments = Comments.sort((a, b) => {
+          return new Date(a.updatedAt) - new Date(b.updatedAt)
+        })
       } catch (error) {
         console.log(error)
         Toast.fire({
@@ -107,19 +113,45 @@ computed:{
         (comment) => comment.id !== commentId
       )
     },
-    afterCreateComment(payload) {
-      const { commentId, restaurantId, text } = payload
-      // 依照comment的資料結構打包 推進評論的陣列裡
-      this.restaurantComments.push({
-        id: commentId,
-        RestaurantId: restaurantId,
-        User: {
-          id: this.currentUser.id,
-          name: this.currentUser.name
-        },
-        text,
-        createdAt: new Date()
-      })
+
+    async afterCreateComment(payload) {
+      const { restaurantId, text } = payload
+
+      if (!text.trim().length) {
+        Toast.fire({ icon: 'error', title: '評論內容不可空白' })
+        return
+      }
+
+      try {
+        this.submitBtn = true
+
+        const { data } = await commentsAPI.create({
+          restaurantId,
+          text
+        })
+
+        if (data.status !== 'success') {
+          throw new Error(data.message)
+        }
+        // 依照comment的資料結構打包 推進評論的陣列裡
+        this.restaurantComments.push({
+          // id: commentId,
+          RestaurantId: restaurantId,
+          User: {
+            id: this.currentUser.id,
+            name: this.currentUser.name
+          },
+          text,
+          createdAt: new Date()
+        })
+
+        this.submitBtn = false
+      } catch (error) {
+        this.submitBtn = false
+
+        console.log(error)
+        Toast.fire({ icon: 'error', title: `${error}` })
+      }
     }
   },
   created() {
@@ -128,7 +160,7 @@ computed:{
     this.fetchRestaurant(restaurantId)
   },
   beforeRouteUpdate(to, from, next) {
-    const {id:restaurantId} = to.params
+    const { id: restaurantId } = to.params
     this.fetchRestaurant(restaurantId)
     next()
   }

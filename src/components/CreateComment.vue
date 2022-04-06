@@ -8,36 +8,37 @@
       <button type="button" class="btn btn-link" @click="$router.back()">
         回上一頁
       </button>
-      <button type="submit" class="btn btn-primary mr-0">Submit</button>
+      <button type="submit" :disabled="submitBtn" class="btn btn-primary mr-0">
+        Submit
+      </button>
     </div>
   </form>
 </template>
 
 <script>
-import { v4 as uuidv4 } from 'uuid'
-
 export default {
   props: {
     restaurantId: {
       type: Number,
-      required: true,
+      required: true
     },
+
+    submitBtn: { type: Boolean }
   },
   data() {
     return {
-      text: '',
+      text: ''
     }
   },
   methods: {
     handleSubmit() {
       // 從父元件拿餐廳id，再用 $emit事把評論要用資料打包傳回父元件
       this.$emit('after-create-comment', {
-        commentId: uuidv4(), // 模擬 API從後端傳來的id
         restaurantId: this.restaurantId, // 從prop拿來的
-        text: this.text,
+        text: this.text
       })
       this.text = ''
-    },
-  },
+    }
+  }
 }
 </script>
