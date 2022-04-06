@@ -107,11 +107,22 @@ export default {
       }
     },
 
-    afterDeleteComment(commentId) {
-      // 篩選要留下的comment，來刪除指定comment
-      this.restaurantComments = this.restaurantComments.filter(
-        (comment) => comment.id !== commentId
-      )
+    async afterDeleteComment(commentId) {
+      try {
+        const { data } = await commentsAPI.delete({ commentId })
+
+        if (data.status !== 'success') {
+          throw new Error(data.message)
+        }
+
+        // 篩選要留下的comment，來刪除指定comment
+        this.restaurantComments = this.restaurantComments.filter(
+          (comment) => comment.id !== commentId
+        )
+      } catch (error) {
+        console.log(error)
+        Toast.fire({ icon: 'error', title: `${error}` })
+      }
     },
 
     async afterCreateComment(payload) {
@@ -135,7 +146,7 @@ export default {
         }
         // 依照comment的資料結構打包 推進評論的陣列裡
         this.restaurantComments.push({
-          // id: commentId,
+          id: data.commentId,
           RestaurantId: restaurantId,
           User: {
             id: this.currentUser.id,
