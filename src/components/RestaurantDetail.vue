@@ -36,45 +36,59 @@
         :to="{ name: 'restaurant-dashboard', params: { id: restaurant.id } }"
         >Dashboard</router-link
       >
+      <transition name="fade" mode="out-in">
+        <button
+          type="button"
+          v-if="restaurant.isFavorited"
+          :key="'deleteFavorite'"
+          @click="deleteFavorite"
+          :disabled="favoriteBtn"
+          class="btn btn-danger btn-border mr-2"
+        >
+          移除最愛
+        </button>
+        <button
+          v-else
+          @click="addFavorite"
+          :key="'addFavorite'"
+          type="button"
+          :disabled="favoriteBtn"
+          class="btn btn-primary btn-border mr-2"
+        >
+          加到最愛
+        </button>
+      </transition>
 
-      <button
-        type="button"
-        v-if="restaurant.isFavorited"
-        @click="deleteFavorite"
-        class="btn btn-danger btn-border mr-2"
-      >
-        移除最愛
-      </button>
-      <button
-        v-else
-        @click="addFavorite"
-        type="button"
-        class="btn btn-primary btn-border mr-2"
-      >
-        加到最愛
-      </button>
-      <button
-        type="button"
-        v-if="restaurant.isLiked"
-        @click="deleteLike"
-        class="btn btn-danger like mr-2"
-      >
-        Unlike
-      </button>
-      <button
-        type="button"
-        v-else
-        @click="addLike"
-        class="btn btn-primary like mr-2"
-      >
-        Like
-      </button>
+      <transition name="fade" mode="out-in">
+        <button
+          type="button"
+          v-if="restaurant.isLiked"
+          @click="deleteLike"
+          :key="'deleteLike'"
+          :disabled="likeBtn"
+          class="btn btn-danger like mr-2"
+        >
+          Unlike
+        </button>
+        <button
+          type="button"
+          v-else
+          @click="addLike"
+          :key="'addLike'"
+          :disabled="likeBtn"
+          class="btn btn-primary like mr-2"
+        >
+          Like
+        </button>
+      </transition>
     </div>
   </div>
 </template>
 
 <script>
 import { telFormat, nullRestaurantFilter } from '../utils/mixins'
+import { Toast } from '../utils/helpers'
+import usersAPI from '../apis/users'
 
 export default {
   mixins: [telFormat, nullRestaurantFilter],
@@ -86,12 +100,14 @@ export default {
   },
   data() {
     return {
-      restaurant: this.restaurantProp
+      restaurant: this.restaurantProp,
+      favoriteBtn: false,
+      likeBtn: false
     }
   },
 
   watch: {
-    restaurantProp(newValue){
+    restaurantProp(newValue) {
       this.restaurant = {
         ...this.restaurant,
         ...newValue
@@ -100,30 +116,125 @@ export default {
   },
 
   methods: {
-    addFavorite() {
-      this.restaurant = {
-        ...this.restaurant,
-        isFavorited: true
+    async addFavorite() {
+      this.favoriteBtn = true
+      try {
+        const { data } = await usersAPI.addFavorite({
+          restaurantId: this.restaurant.id
+        })
+
+        if (data.status !== 'success') {
+          throw new Error(data.message)
+        }
+
+        this.restaurant = {
+          ...this.restaurant,
+          isFavorited: true
+        }
+
+        this.favoriteBtn = false
+      } catch (error) {
+        this.favoriteBtn = false
+
+        console.log(error)
+        Toast.fire({ icon: 'error', title: `${error}` })
       }
     },
-    deleteFavorite() {
-      this.restaurant = {
-        ...this.restaurant,
-        isFavorited: false
+    async deleteFavorite() {
+      this.favoriteBtn = true
+      try {
+        const { data } = await usersAPI.deleteFavorite({
+          restaurantId: this.restaurant.id
+        })
+
+        if (data.status !== 'success') {
+          throw new Error(data.message)
+        }
+
+        this.restaurant = {
+          ...this.restaurant,
+          isFavorited: false
+        }
+        this.favoriteBtn = false
+      } catch (error) {
+        this.favoriteBtn = false
+
+        console.log(error)
+        Toast.fire({ icon: 'error', title: `${error}` })
       }
     },
-    addLike() {
-      this.restaurant = {
-        ...this.restaurant,
-        isLiked: true
+    async addLike() {
+      this.likeBtn = true
+      try {
+        const { data } = await usersAPI.addLike({
+          restaurantId: this.restaurant.id
+        })
+
+        if (data.status !== 'success') {
+          throw new Error(data.message)
+        }
+
+        this.restaurant = {
+          ...this.restaurant,
+          isLiked: true
+        }
+
+        this.likeBtn = false
+      } catch (error) {
+        this.likeBtn = false
+
+        console.log(error)
+        Toast.fire({ icon: 'error', title: `${error}` })
       }
     },
-    deleteLike() {
-      this.restaurant = {
-        ...this.restaurant,
-        isLiked: false
+    async deleteLike() {
+      this.likeBtn = true
+      try {
+        const { data } = await usersAPI.deleteLike({
+          restaurantId: this.restaurant.id
+        })
+
+        if (data.status !== 'success') {
+          throw new Error(data.message)
+        }
+
+        this.restaurant = {
+          ...this.restaurant,
+          isLiked: false
+        }
+
+        this.likeBtn = false
+      } catch (error) {
+        this.likeBtn = false
+
+        console.log(error)
+        Toast.fire({ icon: 'error', title: `${error}` })
       }
     }
   }
 }
 </script>
+
+<style scoped>
+button:disabled {
+  cursor: default;
+}
+
+.fade-enter-active {
+  transition: opacity 0.25s ease-in,
+    transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.285);
+}
+
+.fade-leave-active {
+  transition: opacity 0.1s ease-out;
+}
+
+.fade-enter {
+  opacity: 0.6;
+  transform: scale(80%);
+}
+
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
