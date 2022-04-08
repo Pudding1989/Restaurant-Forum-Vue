@@ -30,22 +30,28 @@
             </router-link>
           </div>
           <div v-else style="display: contents">
-            <button
-              v-if="user.isFollowed"
-              @click="emitUnFollow"
-              type="button"
-              class="btn btn-danger"
-            >
-              取消追蹤
-            </button>
-            <button
-              v-else
-              @click="emitFollow"
-              type="button"
-              class="btn btn-primary"
-            >
-              追蹤
-            </button>
+            <transition name="fade" mode="out-in">
+              <button
+                v-if="user.isFollowed"
+                @click="emitUnFollow"
+                :key="'UnFollow'"
+                :disabled="followBtn"
+                type="button"
+                class="btn btn-danger"
+              >
+                取消追蹤
+              </button>
+              <button
+                v-else
+                @click="emitFollow"
+                :key="'follow'"
+                :disabled="followBtn"
+                type="button"
+                class="btn btn-primary"
+              >
+                追蹤
+              </button>
+            </transition>
           </div>
         </div>
         <p></p>
@@ -62,6 +68,9 @@ export default {
     user: {
       type: Object,
       required: true
+    },
+    followBtn: {
+      type: Boolean
     }
   },
   mixins: [nullAvatarFilter],
@@ -75,3 +84,23 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.fade-enter-active {
+  transition: opacity 0.25s ease-in,
+    transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.285);
+}
+
+.fade-leave-active {
+  transition: opacity 0.1s ease-out;
+}
+
+.fade-enter {
+  opacity: 0.6;
+  transform: scale(80%);
+}
+
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
