@@ -14,15 +14,15 @@
         </tr>
       </thead>
 
-      <tbody v-for="user in users" :key="user.id">
-        <tr>
+      <transition-group tag="tbody" name="tbody">
+        <tr v-for="user in users" :key="user.id">
           <th scope="row">{{ user.id }}</th>
           <td>{{ user.email }}</td>
           <td>{{ user.isAdmin ? 'admin' : 'user' }}</td>
           <td>
             <button
               v-if="currentUser.id !== user.id"
-              @click.stop.prevent="toggleUserRole(user.id)"
+              @click.stop.prevent="toggleUserRole(user.id, user.isAdmin)"
               type="button"
               class="btn btn-link"
             >
@@ -30,7 +30,7 @@
             </button>
           </td>
         </tr>
-      </tbody>
+      </transition-group>
     </table>
   </div>
 </template>
@@ -38,80 +38,95 @@
 <script>
 import AdminNav from '../components/AdminNav'
 
-const dummyData = {
-  users: [
-    {
-      id: 1,
-      name: 'root',
-      email: 'root@example.com',
-      password: '$2a$10$8Fhj4kFkv54mtmkPQFu/PeJfNwLqalcUWMqCofo5.jV2xQFBBXvx6',
-      isAdmin: true,
-      image: null,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z'
-    },
-    {
-      id: 2,
-      name: 'user1',
-      email: 'user1@example.com',
-      password: '$2a$10$UFVyItuSQsryCf3cGEkbC.86d2x2eHeV2JEhMUkkVSpD3rjwx7wWS',
-      isAdmin: false,
-      image: null,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z'
-    },
-    {
-      id: 3,
-      name: 'user2',
-      email: 'user2@example.com',
-      password: '$2a$10$kivRe9l0JPSxc9bRNH0fg.7zaPgulbhRF0KDkoDK92OGiYz58AXoi',
-      isAdmin: false,
-      image: null,
-      createdAt: '2022-01-29T20:17:31.000Z',
-      updatedAt: '2022-01-29T20:17:31.000Z'
-    }
-  ]
-}
-
-// 模擬向後端請求目前使用者資料
-const dummyUser = {
-  currentUser: {
-    id: 1,
-    name: 'root',
-    email: 'root@example.com',
-    image: null,
-    isAdmin: true
-  }
-}
+import { mapState } from 'vuex'
+import adminAPI from '../apis/admin'
+import { Toast } from '../utils/helpers'
 
 export default {
   components: {
     AdminNav
   },
+
   data() {
     return {
-      users: [],
-      currentUser: dummyUser.currentUser
+      users: []
     }
   },
+
+  computed: {
+    ...mapState(['currentUser'])
+  },
+
   created() {
     this.fetchUser()
   },
+
   methods: {
-    fetchUser() {
-      this.users = dummyData.users
-    },
-    toggleUserRole(selectUserId) {
-      this.users = this.users.map((user) => {
-        if (selectUserId === user.id) {
-          return {
-            ...user,
-            isAdmin: !user.isAdmin
-          }
+    async fetchUser() {
+      try {
+        const response = await adminAPI.users.get()
+
+        if (response.statusText !== 'OK') {
+          throw new Error(response.status)
         }
-        return user
-      })
+
+        this.users = response.data.users
+      } catch (error) {
+        console.log(error)
+        Toast.fire({ icon: 'error', title: `${error}` })
+      }
+    },
+
+    async toggleUserRole(userId, userAdmin) {
+      try {
+        console.log('userId',userId,'userAdmin', `${!userAdmin}`);
+        const { data } = await adminAPI.users.update({
+          userId,
+          isAdmin: `${!userAdmin}`
+        })
+
+        if (data.status !== 'success') {
+          throw new Error(data.message)
+        }
+
+        this.users = this.users.map((user) => {
+          if (userId === user.id) {
+            return {
+              ...user,
+              isAdmin: !userAdmin
+            }
+          }
+          return user
+        })
+      } catch (error) {
+        console.log(error)
+        Toast.fire({ icon: 'error', title: `${error}` })
+      }
     }
   }
 }
 </script>
+
+<style scoped>
+.tbody-enter,
+.tbody-leave-to {
+  transform-origin: bottom;
+  transform: scaleY(0);
+}
+
+.tbody-enter-to,
+.tbody-leave {
+  transform-origin: top;
+  transform: scaleY(1);
+}
+
+.tbody-enter-active {
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.285);
+}
+
+.tbody-leave-active {
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.1, 1);
+  /* visibility: hidden;
+  position: absolute; */
+}
+</style>
