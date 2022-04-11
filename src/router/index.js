@@ -5,7 +5,7 @@ import NotFound from '../views/NotFound.vue'
 import SignIn from '../views/SignIn.vue'
 import Restaurants from '../views/Restaurants.vue'
 //  要載入 dispatch 方法
-import store from "../store";
+import store from '../store'
 
 Vue.use(VueRouter)
 
@@ -113,9 +113,32 @@ const router = new VueRouter({
   ]
 })
 
-router.beforeEach((to, from, next) => {
-  // 使用 dispatch 呼叫 Vuex 內的 actions
-  store.dispatch('fetchCurrentUser')
+router.beforeEach(async (to, from, next) => {
+  const token = localStorage.getItem('token')
+
+  // eslint-disable-next-line no-unused-vars
+  let isAuthenticated = false
+
+  // 有 token 的話才驗證
+  if (token) {
+    // 使用 dispatch 呼叫 Vuex 內的 actions
+    isAuthenticated = await store.dispatch('fetchCurrentUser')
+  }
+
+  const pathsWithoutAuthentication = ['sign-in', 'sign-up']
+
+  //  token 無效時進入需要驗證的頁面轉址到登入頁
+  if (!isAuthenticated && !pathsWithoutAuthentication.includes(to.name)) {
+    next({ name: 'sign-in' })
+    return
+  }
+
+  // token 有效時進入需要驗證的頁面轉址到餐廳列表
+  if (isAuthenticated && pathsWithoutAuthentication.includes(to.name)) {
+    next({ name: 'restaurants' })
+    return
+  }
+
   next()
 })
 
