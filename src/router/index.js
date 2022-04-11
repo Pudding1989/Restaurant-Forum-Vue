@@ -114,26 +114,26 @@ const router = new VueRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  const token = localStorage.getItem('token')
+  const tokenInLocalStorage = localStorage.getItem('token')
+  const tokenInStore = store.state.token
 
-  // eslint-disable-next-line no-unused-vars
-  let isAuthenticated = false
+  let isAuthenticated = store.state.isAuthenticated
 
-  // 有 token 的話才驗證
-  if (token) {
+  // 有 token，而且 store 中的 token 不一樣時
+  if (tokenInLocalStorage && tokenInLocalStorage !== tokenInStore) {
     // 使用 dispatch 呼叫 Vuex 內的 actions
     isAuthenticated = await store.dispatch('fetchCurrentUser')
   }
 
   const pathsWithoutAuthentication = ['sign-in', 'sign-up']
 
-  //  token 無效時進入需要驗證的頁面轉址到登入頁
+  //  token 無效時，進入需要驗證的頁面轉址到登入頁
   if (!isAuthenticated && !pathsWithoutAuthentication.includes(to.name)) {
     next({ name: 'sign-in' })
     return
   }
 
-  // token 有效時進入需要驗證的頁面轉址到餐廳列表
+  // token 有效時，進入需要驗證的頁面轉址到餐廳列表
   if (isAuthenticated && pathsWithoutAuthentication.includes(to.name)) {
     next({ name: 'restaurants' })
     return
