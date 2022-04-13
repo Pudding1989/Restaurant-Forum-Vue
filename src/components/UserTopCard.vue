@@ -5,7 +5,7 @@
     </router-link>
     <h2>{{ user.name }}</h2>
     <span class="badge badge-secondary"
-      >追蹤人數：{{ user.followerCount}}</span
+      >追蹤人數：{{ user.followerCount }}</span
     >
     <p class="mt-3">
       <button
@@ -55,7 +55,8 @@ export default {
         // 收到再操作vue屬性
         this.user = {
           ...this.user,
-          isFollowed: true
+          isFollowed: true,
+          followerCount: this.user.followerCount + 1
         }
       } catch (error) {
         Toast.fire({
@@ -74,7 +75,8 @@ export default {
 
         this.user = {
           ...this.user,
-          isFollowed: false
+          isFollowed: false,
+          followerCount: this.user.followerCount - 1
         }
       } catch (error) {
         Toast.fire({
