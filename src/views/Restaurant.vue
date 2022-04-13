@@ -1,21 +1,25 @@
 <template>
   <div class="container py-5">
-    <h1>餐廳描述頁</h1>
-    <!-- 餐廳資訊頁 RestaurantDetail -->
-    <RestaurantDetail :restaurant-prop="restaurant" />
-    <hr />
-    <!-- 餐廳評論 RestaurantComments -->
+    <Spinner v-if="isLoading" />
 
-    <RestaurantComments
-      :restaurant-comments="restaurantComments"
-      @after-delete-comment="afterDeleteComment"
-    />
-    <!-- 新增評論 CreateComment -->
-    <CreateComment
-      :restaurant-id="restaurant.id"
-      :submitBtn="submitBtn"
-      @after-create-comment="afterCreateComment"
-    />
+    <template v-else>
+      <h1>餐廳描述頁</h1>
+      <!-- 餐廳資訊頁 RestaurantDetail -->
+      <RestaurantDetail :restaurant-prop="restaurant" />
+      <hr />
+      <!-- 餐廳評論 RestaurantComments -->
+
+      <RestaurantComments
+        :restaurant-comments="restaurantComments"
+        @after-delete-comment="afterDeleteComment"
+      />
+      <!-- 新增評論 CreateComment -->
+      <CreateComment
+        :restaurant-id="restaurant.id"
+        :submitBtn="submitBtn"
+        @after-create-comment="afterCreateComment"
+      />
+    </template>
   </div>
 </template>
 
@@ -23,6 +27,8 @@
 import RestaurantDetail from '../components/RestaurantDetail.vue'
 import RestaurantComments from '../components/RestaurantComments.vue'
 import CreateComment from '../components/CreateComment.vue'
+import Spinner from '../components/Spinner.vue'
+
 import restaurantsAPI from '../apis/restaurants'
 import commentsAPI from '../apis/comments'
 import { Toast } from '../utils/helpers'
@@ -32,7 +38,8 @@ export default {
   components: {
     RestaurantDetail,
     RestaurantComments,
-    CreateComment
+    CreateComment,
+    Spinner
   },
 
   data() {
@@ -52,7 +59,8 @@ export default {
       },
       restaurantComments: [],
       // 發送 API時 disabled 按鈕
-      submitBtn: false
+      submitBtn: false,
+      isLoading: true
     }
   },
 
@@ -64,6 +72,8 @@ export default {
 
   methods: {
     async fetchRestaurant(restaurantId) {
+      this.isLoading = true
+
       try {
         const { data } = await restaurantsAPI.getRestaurant({ restaurantId })
 
@@ -98,8 +108,12 @@ export default {
         this.restaurantComments = Comments.sort((a, b) => {
           return new Date(a.updatedAt) - new Date(b.updatedAt)
         })
+
+        this.isLoading = false
       } catch (error) {
         console.log(error)
+        this.isLoading = false
+
         Toast.fire({
           icon: 'error',
           title: '無法取得餐廳資料，請稍後再試'

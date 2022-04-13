@@ -1,10 +1,10 @@
-/* eslint-disable no-unused-vars */ /* eslint-disable no-unused-vars */
 <template>
   <div class="container py-5">
     <!-- AdminNav Component -->
     <AdminNav />
 
-    <table class="table">
+    <Spinner v-if="isLoading" />
+    <table v-else class="table">
       <thead class="thead-dark">
         <tr>
           <th scope="col">#</th>
@@ -15,14 +15,15 @@
       </thead>
 
       <transition-group tag="tbody" name="tbody">
-        <tr v-for="user in users" :key="user.id">
+        <tr v-for="(user, index) in users" :key="user.id">
           <th scope="row">{{ user.id }}</th>
           <td>{{ user.email }}</td>
           <td>{{ user.isAdmin ? 'admin' : 'user' }}</td>
           <td>
             <button
               v-if="currentUser.id !== user.id"
-              @click.stop.prevent="toggleUserRole(user.id, user.isAdmin)"
+              @click.stop.prevent="toggleUserRole(user.id, user.isAdmin, index)"
+              :disabled="user.isProcessing"
               type="button"
               class="btn btn-link"
             >
@@ -37,6 +38,7 @@
 
 <script>
 import AdminNav from '../components/AdminNav'
+import Spinner from '../components/Spinner'
 
 import { mapState } from 'vuex'
 import adminAPI from '../apis/admin'
@@ -44,12 +46,15 @@ import { Toast } from '../utils/helpers'
 
 export default {
   components: {
-    AdminNav
+    AdminNav,
+    Spinner
   },
 
   data() {
     return {
-      users: []
+      users: [],
+      isProcessing: false,
+      isLoading: true
     }
   },
 
@@ -63,6 +68,7 @@ export default {
 
   methods: {
     async fetchUser() {
+      this.isLoading = true
       try {
         const response = await adminAPI.users.get()
 
@@ -70,16 +76,24 @@ export default {
           throw new Error(response.status)
         }
 
-        this.users = response.data.users
+        this.users = response.data.users.map((user) => ({
+          ...user,
+          isProcessing: false
+        }))
+
+        this.isLoading = false
       } catch (error) {
+        this.isLoading = false
+
         console.log(error)
         Toast.fire({ icon: 'error', title: `${error}` })
       }
     },
 
-    async toggleUserRole(userId, userAdmin) {
+    async toggleUserRole(userId, userAdmin, index) {
+      this.users[index].isProcessing = true
       try {
-        console.log('userId',userId,'userAdmin', `${!userAdmin}`);
+        this.isProcessing = true
         const { data } = await adminAPI.users.update({
           userId,
           isAdmin: `${!userAdmin}`
@@ -98,7 +112,11 @@ export default {
           }
           return user
         })
+
+        this.users[index].isProcessing = false
       } catch (error) {
+        this.users[index].isProcessing = false
+
         console.log(error)
         Toast.fire({ icon: 'error', title: `${error}` })
       }

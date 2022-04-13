@@ -17,6 +17,7 @@
           <button
             type="button"
             @click.stop.prevent="createCategory"
+            :disabled="isProcessing"
             class="btn btn-primary"
           >
             新增
@@ -24,7 +25,9 @@
         </div>
       </div>
     </form>
-    <table class="table">
+
+    <Spinner v-if="isLoading" />
+    <table v-else class="table">
       <thead class="thead-dark">
         <tr>
           <th scope="col" width="60">#</th>
@@ -143,18 +146,22 @@
 
 <script>
 import AdminNav from '@/components/AdminNav'
+import Spinner from '@/components/Spinner'
 import adminAPI from '../apis/admin'
 import { Toast } from '../utils/helpers'
 
 export default {
   components: {
-    AdminNav
+    AdminNav,
+    Spinner
   },
   //  定義 Vue 中使用的 data 資料
   data() {
     return {
       newCategoryName: '',
-      categories: []
+      categories: [],
+      isProcessing: false,
+      isLoading: true
     }
   },
   // 調用 `fetchCategories` 方法
@@ -164,6 +171,7 @@ export default {
   methods: {
     // 4. 定義 fetchCategories 方法，把 response data 帶入 Vue 物件
     async fetchCategories() {
+      this.isLoading = true
       try {
         const { data, statusText } = await adminAPI.categories.get()
         if (statusText !== 'OK') {
@@ -177,7 +185,10 @@ export default {
           // 備份編輯前資料用
           nameCached: ''
         }))
+        this.isLoading = false
       } catch (error) {
+        this.isLoading = false
+
         Toast.fire({
           icon: 'warning',
           title: '無法取得餐廳類別<br>，請稍後再試'
@@ -186,6 +197,7 @@ export default {
     },
     async createCategory() {
       try {
+        this.isProcessing = true
         const { data } = await adminAPI.categories.create({
           name: this.newCategoryName
         })
@@ -206,7 +218,11 @@ export default {
         })
         // 清空欄位
         this.newCategoryName = ''
+
+        this.isProcessing = false
       } catch (error) {
+        this.isProcessing = false
+
         console.log(error)
         Toast.fire({
           icon: 'warning',
