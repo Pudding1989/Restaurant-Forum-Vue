@@ -2,7 +2,7 @@
   <div>
     <h2 class="my-4">所有評論：</h2>
 
-    <transition-group name="sort">
+    <transition-group name="sort" appear>
       <div v-for="comment in restaurantComments" :key="comment.id">
         <blockquote class="blockquote mb-0">
           <button

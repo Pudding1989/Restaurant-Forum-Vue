@@ -14,7 +14,7 @@
         </tr>
       </thead>
 
-      <transition-group tag="tbody" name="tbody">
+      <transition-group tag="tbody" name="tbody" appear>
         <tr v-for="(user, index) in users" :key="user.id">
           <th scope="row">{{ user.id }}</th>
           <td>{{ user.email }}</td>

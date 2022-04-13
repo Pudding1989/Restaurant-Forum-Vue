@@ -35,7 +35,7 @@
           <th scope="col" width="210">Action</th>
         </tr>
       </thead>
-      <transition-group tag="tbody" name="tbody">
+      <transition-group tag="tbody" name="tbody" appear>
         <tr v-for="category in categories" :key="category.id">
           <th scope="row">
             {{ category.id }}

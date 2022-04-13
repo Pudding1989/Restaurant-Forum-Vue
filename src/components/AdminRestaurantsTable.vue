@@ -10,7 +10,7 @@
       </tr>
     </thead>
 
-    <transition-group tag="tbody" name="tbody">
+    <transition-group tag="tbody" name="tbody" appear>
       <tr v-for="restaurant in restaurants" :key="restaurant.id">
         <th scope="row">
           {{ restaurant.id }}
