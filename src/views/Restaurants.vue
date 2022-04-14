@@ -15,6 +15,8 @@
         />
       </div>
 
+      <div v-if="restaurants.length < 1">此類別目前無餐聽資料</div>
+
       <!-- 分頁標籤 RestaurantPagination -->
       <RestaurantsPagination
         v-if="totalPage.length > 1"
